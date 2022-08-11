@@ -40,3 +40,4 @@ contracts/artifacts
 build
 cache
 artifacts
+bin
