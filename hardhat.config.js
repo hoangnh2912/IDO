@@ -24,4 +24,9 @@ module.exports = {
       accounts: [`${PRIVATE_KEY}`],
     },
   },
+  etherscan: {
+    apiKey: {
+      rinkeby: "2ST54JNJTBR3CANFFTQA5RNEXKF65NN39E",
+    },
+  },
 };

@@ -21,21 +21,25 @@ async function main() {
         address: pool.address,
         abi: require("../build/contracts/Pool.json").abi,
         contractName: require("../build/contracts/Pool.json").contractName,
+        input: [],
       },
       WrapETH: {
         address: wrapETH.address,
         abi: require("../build/contracts/WrapETH.json").abi,
         contractName: require("../build/contracts/WrapETH.json").contractName,
+        input: [],
       },
       USDT: {
         address: usdt.address,
         abi: require("../build/contracts/USDT.json").abi,
         contractName: require("../build/contracts/USDT.json").contractName,
+        input: [],
       },
       DOGE: {
         address: doge.address,
         abi: require("../build/contracts/DOGE.json").abi,
         contractName: require("../build/contracts/DOGE.json").contractName,
+        input: [],
       },
     })
   );
