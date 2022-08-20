@@ -24,6 +24,7 @@ async function main() {
   for (let i = 0; i < Object.values(config).length; i++) {
     const contract = Object.values(config)[i];
     const inputStr = contract.input.join(" ");
+    if (!contract.contractName) continue;
     console.log(
       "Start verifying contract: " + contract.contractName,
       contract.address
