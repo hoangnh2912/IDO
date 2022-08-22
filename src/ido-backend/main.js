@@ -3,7 +3,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const walletRouter = require("./routes/wallet");
-const nftRouter = require("./routes/nft");
+const idoRouter = require("./routes/ido");
 const storageRouter = require("./routes/storage");
 const cors = require("cors");
 const { PORT } = require("./utils/constant");
@@ -30,7 +30,7 @@ const loggerAuth = (req, res, next) => {
 };
 
 mainRouter.use("/wallet", walletRouter);
-mainRouter.use("/nft", nftRouter);
+mainRouter.use("/nft", idoRouter);
 mainRouter.use("/storage", storageRouter);
 app.use("/api", loggerAuth, mainRouter);
 

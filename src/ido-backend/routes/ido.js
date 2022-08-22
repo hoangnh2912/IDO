@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { GetListNFT } = require("../controller/nft");
+const { GetListIDO } = require("../controller/ido");
 
-router.get("/get-list-nft", GetListNFT);
+router.get("/get-list-ido", GetListIDO);
 module.exports = router;

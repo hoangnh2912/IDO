@@ -2,38 +2,18 @@
 import { useEffect, useState } from "react";
 import Web3 from "web3"; // Only when using npm/yarn
 import logo from "../../assets/images/logo512.png";
-import ModalBidNFT from "../../components/ModalBidNFT";
-import ModalDepositWETH from "../../components/ModalDepositWETH";
-import ModalMintNFT from "../../components/ModalMintNFT";
-import ModalSellNFT from "../../components/ModalSellNFT";
-import ModalTransferNFT from "../../components/ModalTransferNFT";
-import ModalWithdrawWETH from "../../components/ModalWithdrawWETH";
+import ModalAddIDO from "../../components/ModalAddIDO";
 import NFTItem from "../../components/NFTItem";
 import { LIST_NFT_TYPE, NETWOKR } from "../../constants/config";
-import { mint, transfer } from "../../contracts/Estate";
-import {
-  acceptBid,
-  bid,
-  buy,
-  cancelBid,
-  cancelSellToken,
-  sell,
-} from "../../contracts/Market";
-import { deposit, withdraw } from "../../contracts/Weth";
+import { addIDO } from "../../contracts/Pool";
 import { getBalanceAPI, getListNFTAPI } from "../../services";
-import { shortAddress } from "../../utils/AddressHelper";
 import "./index.css";
 
 const Application = () => {
   const wdx = window as any;
 
   const [isShowMintNFT, setIsShowNewIdo] = useState(false);
-  const [isShowTransferNFT, setIsShowTransferNFT] = useState(false);
-  const [isShowSellNFT, setIsShowSellNFT] = useState(false);
-  const [isShowBidNFT, setIsShowBidNFT] = useState(false);
-  const [isShowWithdraw, setIsShowWithdraw] = useState(false);
-  const [isShowDeposit, setIsShowDeposit] = useState(false);
-  const [currentTokenSelect, setCurrentTokenSelect] = useState(null);
+
   const [balance, setBalance] = useState("");
   const [ownerNFTs, setOwnerNFTs] = useState<any>([]);
   const [marketNFTs, setMarketNFTs] = useState<any>([]);
@@ -150,7 +130,7 @@ const Application = () => {
     try {
       setLoading(true);
       if (account)
-        await mint(
+        await addIDO(
           {
             address,
             description,
@@ -166,178 +146,6 @@ const Application = () => {
     }
   };
 
-  const onPressTransferNFT = async (tokenId: number, address: string) => {
-    hideTransfer();
-    try {
-      setLoading(true);
-      if (account)
-        await transfer(
-          {
-            address,
-            token_id: tokenId,
-          },
-          account
-        );
-      await getBalance();
-      await getOnwerNFTs();
-      await getMarketNFTs();
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onPressSellNFT = async (tokenId: number, price: number) => {
-    hideSell();
-    try {
-      setLoading(true);
-      if (account) {
-        await sell(
-          {
-            token: tokenId,
-            price,
-          },
-          account
-        );
-        await getBalance();
-        await getOnwerNFTs();
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onPressWithdraw = async (amount: number) => {
-    hideWithdraw();
-    try {
-      setLoading(true);
-      if (account) {
-        await withdraw(amount, account);
-        await getBalance();
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onPressDeposit = async (amount: number) => {
-    hideDeposit();
-    try {
-      setLoading(true);
-      if (account) {
-        await deposit(amount, account);
-        await getBalance();
-      }
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onPressBid = async (tokenId: number, price: number) => {
-    hideBid();
-    try {
-      setLoading(true);
-      await bid(
-        {
-          token: tokenId,
-          price,
-        },
-        account
-      );
-      await getBalance();
-      await getMarketNFTs();
-    } catch (error: any) {
-      console.log("onPressBid", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const onPressBuy = async (tokenId: number) => {
-    try {
-      setLoading(true);
-      if (account) {
-        await buy(
-          {
-            token: tokenId,
-          },
-          account
-        );
-      }
-      await getBalance();
-      await getOnwerNFTs();
-      await getMarketNFTs();
-    } catch (error: any) {
-      console.log("onPressBuy", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onPressAcceptBid = async (tokenId: number) => {
-    try {
-      setLoading(true);
-      if (account) {
-        await acceptBid(
-          {
-            token: tokenId,
-          },
-          account
-        );
-      }
-      await getBalance();
-      await getOnwerNFTs();
-      await getMarketNFTs();
-    } catch (error: any) {
-      console.log("onPressAcceptBid", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onPressCancel = async (tokenId: number) => {
-    try {
-      setLoading(true);
-      if (account) {
-        await cancelSellToken(
-          {
-            token: tokenId,
-          },
-          account
-        );
-      }
-      await getBalance();
-      await getOnwerNFTs();
-    } catch (error: any) {
-      console.log("onPressCancel", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const onPressCancelBid = async (tokenId: number) => {
-    try {
-      setLoading(true);
-      if (account) {
-        await cancelBid(
-          {
-            token: tokenId,
-          },
-          account
-        );
-      }
-      await getBalance();
-      await getMarketNFTs();
-    } catch (error: any) {
-      console.log("onPressCancel", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const showNewIdo = () => {
     setIsShowNewIdo(true);
   };
@@ -346,85 +154,12 @@ const Application = () => {
     setIsShowNewIdo(false);
   };
 
-  const showTransfer = (token: any) => {
-    setIsShowTransferNFT(true);
-    setCurrentTokenSelect(token);
-  };
-
-  const hideTransfer = () => {
-    setIsShowTransferNFT(false);
-    setCurrentTokenSelect(null);
-  };
-
-  const showSell = (token: any) => {
-    setIsShowSellNFT(true);
-    setCurrentTokenSelect(token);
-  };
-
-  const hideSell = () => {
-    setIsShowSellNFT(false);
-    setCurrentTokenSelect(null);
-  };
-
-  const showWithdraw = () => {
-    setIsShowWithdraw(true);
-  };
-
-  const hideWithdraw = () => {
-    setIsShowWithdraw(false);
-  };
-
-  const showDeposit = () => {
-    setIsShowDeposit(true);
-  };
-
-  const hideDeposit = () => {
-    setIsShowDeposit(false);
-  };
-
-  const showBid = (token: any) => {
-    setIsShowBidNFT(true);
-    setCurrentTokenSelect(token);
-  };
-  const hideBid = () => {
-    setIsShowBidNFT(false);
-    setCurrentTokenSelect(null);
-  };
-
   return (
     <div className="App">
-      <ModalWithdrawWETH
-        isShow={isShowWithdraw}
-        onSubmit={onPressWithdraw}
-        onClose={hideWithdraw}
-      />
-      <ModalDepositWETH
-        isShow={isShowDeposit}
-        onSubmit={onPressDeposit}
-        onClose={hideDeposit}
-      />
-      <ModalMintNFT
+      <ModalAddIDO
         isShow={isShowMintNFT}
         onSubmit={onPressMintNFT}
         onClose={hideIdo}
-      />
-      <ModalTransferNFT
-        isShow={isShowTransferNFT}
-        onSubmit={onPressTransferNFT}
-        onClose={hideTransfer}
-        token={currentTokenSelect}
-      />
-      <ModalSellNFT
-        isShow={isShowSellNFT}
-        onSubmit={onPressSellNFT}
-        onClose={hideSell}
-        token={currentTokenSelect}
-      />
-      <ModalBidNFT
-        isShow={isShowBidNFT}
-        onSubmit={onPressBid}
-        onClose={hideBid}
-        token={currentTokenSelect}
       />
       <span> </span>
       <nav className="navbar navbar-dark fixed-top bg-light flex-md-nowrap p-0 shadow">
@@ -546,13 +281,7 @@ const Application = () => {
                   marginTop: 30,
                 }}
               >
-                <NFTItem
-                  onPressCancelBid={onPressCancelBid}
-                  onPressBuy={onPressBuy}
-                  showBid={showBid}
-                  token={house}
-                  account={account}
-                />
+                <NFTItem token={house} account={account} />
               </div>
             ))
           )}
@@ -597,14 +326,7 @@ const Application = () => {
                   width: 380,
                 }}
               >
-                <NFTItem
-                  showSell={showSell}
-                  account={account}
-                  onPressAcceptBid={onPressAcceptBid}
-                  showTransfer={showTransfer}
-                  onPressCancel={onPressCancel}
-                  token={house}
-                />
+                <NFTItem account={account} token={house} />
                 <div
                   style={{
                     marginTop: 10,

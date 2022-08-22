@@ -12,32 +12,33 @@ async function main() {
   const usdt = await USDT.deploy();
   const doge = await DOGE.deploy();
 
+  const config = {
+    Pool: {
+      address: pool.address,
+      abi: require("../build/contracts/Pool.json").abi,
+      contractName: require("../build/contracts/Pool.json").contractName,
+      input: [],
+    },
+    USDT: {
+      address: usdt.address,
+      abi: require("../build/contracts/USDT.json").abi,
+      contractName: require("../build/contracts/USDT.json").contractName,
+      input: [],
+    },
+    DOGE: {
+      address: doge.address,
+      abi: require("../build/contracts/DOGE.json").abi,
+      contractName: require("../build/contracts/DOGE.json").contractName,
+      input: [],
+    },
+  };
   fs.writeFileSync(
-    "./config.json",
-    JSON.stringify({
-      Pool: {
-        address: pool.address,
-        abi: require("../build/contracts/Pool.json").abi,
-        contractName: require("../build/contracts/Pool.json").contractName,
-        input: [],
-      },
-      USDT: {
-        address: usdt.address,
-        abi: require("../build/contracts/USDT.json").abi,
-        contractName: require("../build/contracts/USDT.json").contractName,
-        input: [],
-      },
-      DOGE: {
-        address: doge.address,
-        abi: require("../build/contracts/DOGE.json").abi,
-        contractName: require("../build/contracts/DOGE.json").contractName,
-        input: [],
-      },
-      ERC20: {
-        abi: require("../build/contracts/DOGE.json").abi,
-        input: [],
-      },
-    })
+    "./src/ido-backend/utils/config.json",
+    JSON.stringify(config)
+  );
+  fs.writeFileSync(
+    "./src/ido-frontend/src/constants/config.json",
+    JSON.stringify(config)
   );
 }
 

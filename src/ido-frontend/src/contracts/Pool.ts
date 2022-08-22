@@ -4,16 +4,19 @@ import CONFIG from "../constants/config.json";
 import { pinDataToIPFS, pinFileToIPFS } from "../utils/MintFunc";
 import { getTransactionReceiptMined } from "../utils/TransactionHelper";
 
-const mint = async (payload: any, from: string) => {
-  try {
-    const { web3 } = window as any;
-    const { address, image, description } = payload;
+const contract = () => {
+  const { web3 } = window as any;
 
+  return new web3.eth.Contract(
+    CONFIG.Pool.abi as AbiItem[],
+    CONFIG.Pool.address
+  );
+};
+
+const addIDO = async (payload: any, from: string) => {
+  try {
+    const { address, image, description } = payload;
     const imageResponse = await pinFileToIPFS(image);
-    const contract = new web3.eth.Contract(
-      CONFIG.Estate.abi as AbiItem[],
-      CONFIG.Estate.address
-    );
     const metadata = {
       description,
       image: imageResponse.pinataUrl,
@@ -32,8 +35,8 @@ const mint = async (payload: any, from: string) => {
     };
     const pinataResponse = await pinDataToIPFS(metadata);
     if (!pinataResponse) throw new Error("Metadata not pinned");
-    const res = await contract.methods
-      .mint(`${pinataResponse.pinataUrl}`)
+    const res = await contract()
+      .methods.addIDO(`${pinataResponse.pinataUrl}`)
       .send({ from });
     await getTransactionReceiptMined(res.transactionHash);
   } catch (error) {
@@ -41,16 +44,11 @@ const mint = async (payload: any, from: string) => {
   }
 };
 
-const transfer = async (payload: any, from: string) => {
+const buyIDO = async (payload: any, from: string) => {
   try {
-    const { web3 } = window as any;
     const { address, token_id } = payload;
-    const contract = new web3.eth.Contract(
-      CONFIG.Estate.abi as AbiItem[],
-      CONFIG.Estate.address
-    );
-    const res = await contract.methods
-      .transferFrom(from, address, token_id)
+    const res = await contract()
+      .methods.transferFrom(from, address, token_id)
       .send({ from });
     await getTransactionReceiptMined(res.transactionHash);
   } catch (error: any) {
@@ -58,15 +56,25 @@ const transfer = async (payload: any, from: string) => {
   }
 };
 
-const tokenURI = async (payload: any) => {
+const claimLeftIdo = async (payload: any) => {
   const { token } = payload;
-  const { web3 } = window as any;
-  const contract = new web3.eth.Contract(
-    CONFIG.Estate.abi as AbiItem[],
-    CONFIG.Estate.address
-  );
-  const tokenURI = await contract.methods.tokenURI(token).call();
+  const tokenURI = await contract().methods.tokenURI(token).call();
   return tokenURI;
 };
+const getIDO = async (payload: any) => {
+  const { token } = payload;
+  const _ido = await contract().methods.getIDO(token).call();
+  return _ido;
+};
+const getTotalIDO = async (payload: any) => {
+  const { token } = payload;
+  const _totalIdo = await contract().methods.getTotalIDO(token).call();
+  return _totalIdo;
+};
+const isIDOEnded = async (payload: any) => {
+  const { token } = payload;
+  const _ended = await contract().methods.isIDOEnded(token).call();
+  return _ended;
+};
 
-export { mint, tokenURI, transfer };
+export { addIDO, claimLeftIdo, buyIDO, getIDO, getTotalIDO, isIDOEnded };
