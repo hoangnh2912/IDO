@@ -1,9 +1,9 @@
 import { getAPI, handleResult } from "../ApiClient";
 
-const getListNFTAPI = (payload: any) =>
+const getListIDOAPI = (payload: any) =>
   handleResult(
-    getAPI.get("nft/get-list-nft", {
+    getAPI.get("nft/get-list-ido", {
       params: payload,
     })
   );
-export { getListNFTAPI };
+export { getListIDOAPI };

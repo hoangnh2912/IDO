@@ -18,7 +18,7 @@ module.exports = {
           continue;
         let metadata = {};
         try {
-          const uri = ido.idoMetadata;
+          const uri = ido[5];
           metadata = await (
             await fetch(
               `http://${req.headers.host}/api/storage/read?key=${uri}`
@@ -26,10 +26,13 @@ module.exports = {
           ).json();
         } catch (error) {}
         listIDO.push({
-          owner_of,
-          token_address: CONFIG.Estate.address,
-          token_id: i,
+          owner: ido[0],
+          tokenCurrency: ido[1],
+          idoCurrency: ido[2],
+          tokenSupply: ido[3],
+          idoSupply: ido[4],
           metadata,
+          endTime: ido[6],
         });
       }
       res.json(onSuccessArray(listIDO));

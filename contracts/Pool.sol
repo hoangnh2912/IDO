@@ -7,7 +7,8 @@ import "./modifier/PoolModifier.sol";
 contract Pool is PoolModifier {
     uint256 private _totalIdo;
     mapping(uint256 => IDO) private _ido;
-    mapping(uint256 => uint256) private _rateTokenToIdo;
+    mapping(uint256 => uint256) private _IdoToRateToken;
+    mapping(uint256 => uint256) private _IdoToLeftToken;
 
     constructor() {}
 
@@ -38,8 +39,9 @@ contract Pool is PoolModifier {
         );
 
         uint256 idoID = ++_totalIdo;
-        _rateTokenToIdo[idoID] = idoSupply / tokenSupply;
+        _IdoToRateToken[idoID] = idoSupply / tokenSupply;
         _ido[idoID] = newIDO;
+        _IdoToLeftToken[idoID] = idoSupply;
     }
 
     function buyIDO(uint256 _id, uint256 _amountToken)
@@ -55,14 +57,20 @@ contract Pool is PoolModifier {
         );
         IERC20(_ido[_id].idoCurrency).transfer(
             msg.sender,
-            _amountToken * _rateTokenToIdo[_id]
+            _amountToken * _IdoToRateToken[_id]
         );
+        _IdoToLeftToken[_id] -= _amountToken;
     }
 
     function claimLeftIdo(uint256 _id) public onlyOwner(_ido[_id].owner) {
         require(isIDOEnded(_id), "IDO is not ended");
         IERC20 idoERC20 = IERC20(_ido[_id].idoCurrency);
-        idoERC20.transfer(_ido[_id].owner, idoERC20.balanceOf(address(this)));
+        require(
+            idoERC20.balanceOf(address(this)) >= _IdoToLeftToken[_id],
+            "Not enough balance to claim left ido"
+        );
+        idoERC20.transfer(_ido[_id].owner, _IdoToLeftToken[_id]);
+        _IdoToLeftToken[_id] = 0;
     }
 
     function isIDOEnded(uint256 _id) public view returns (bool) {
@@ -71,6 +79,10 @@ contract Pool is PoolModifier {
 
     function getIDO(uint256 _id) public view returns (IDO memory) {
         return _ido[_id];
+    }
+
+    function getLeftIDO(uint256 _id) public view returns (uint256) {
+        return _IdoToLeftToken[_id];
     }
 
     function getTotalIDO() public view returns (uint256) {

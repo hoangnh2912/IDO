@@ -6,7 +6,7 @@ import ModalAddIDO from "../../components/ModalAddIDO";
 import NFTItem from "../../components/NFTItem";
 import { LIST_NFT_TYPE, NETWOKR } from "../../constants/config";
 import { addIDO } from "../../contracts/Pool";
-import { getBalanceAPI, getListNFTAPI } from "../../services";
+import { getBalanceAPI, getListIDOAPI } from "../../services";
 import "./index.css";
 
 const Application = () => {
@@ -15,8 +15,10 @@ const Application = () => {
   const [isShowMintNFT, setIsShowNewIdo] = useState(false);
 
   const [balance, setBalance] = useState("");
-  const [ownerNFTs, setOwnerNFTs] = useState<any>([]);
-  const [marketNFTs, setMarketNFTs] = useState<any>([]);
+  const [balanceUSDT, setBalanceUSDT] = useState("");
+  const [balanceDOGE, setBalanceDOGE] = useState("");
+  const [ownerIDOs, setOwnerIDOs] = useState<any>([]);
+  const [marketIDOs, setMarketIDOs] = useState<any>([]);
   const [isLoading, setLoading] = useState(false);
   const [isLoadingMarket, setLoadingMarket] = useState(false);
   const [isLoadingOwner, setLoadingOwner] = useState(false);
@@ -30,10 +32,16 @@ const Application = () => {
         const balance = await getBalanceAPI({
           address: account,
         });
-        const { eth, weth } = balance.data;
+        const { eth, usdt, doge } = balance.data;
 
         setBalance(
           `${parseFloat(wdx.web3.utils.fromWei(eth, "ether")).toFixed(5)}`
+        );
+        setBalanceUSDT(
+          `${parseFloat(wdx.web3.utils.fromWei(usdt, "ether")).toFixed(5)}`
+        );
+        setBalanceDOGE(
+          `${parseFloat(wdx.web3.utils.fromWei(doge, "ether")).toFixed(5)}`
         );
       } catch (error) {}
     }
@@ -94,13 +102,13 @@ const Application = () => {
   const getOnwerNFTs = async () => {
     if (account) {
       setLoadingOwner(true);
-      setOwnerNFTs([]);
+      setOwnerIDOs([]);
       try {
-        const response = await getListNFTAPI({
+        const response = await getListIDOAPI({
           address: account,
           type: LIST_NFT_TYPE.INCLUDE,
         });
-        setOwnerNFTs(response.data);
+        setOwnerIDOs(response.data);
       } catch (error) {}
       setLoadingOwner(false);
     }
@@ -109,32 +117,38 @@ const Application = () => {
   const getMarketNFTs = async () => {
     if (account) {
       setLoadingMarket(true);
-      setMarketNFTs([]);
+      setMarketIDOs([]);
       try {
-        const response = await getListNFTAPI({
+        const response = await getListIDOAPI({
           address: account,
           type: LIST_NFT_TYPE.EXCLUDE,
         });
-        setMarketNFTs(response.data);
+        setMarketIDOs(response.data);
       } catch (error) {}
       setLoadingMarket(false);
     }
   };
 
-  const onPressMintNFT = async (
-    address: string,
-    description: string,
-    image: File
-  ) => {
+  const onPressAddIDO = async ({
+    title,
+    usdtAmount,
+    endTime,
+    idoAddress,
+    idoAmount,
+    image,
+  }: any) => {
     hideIdo();
     try {
       setLoading(true);
       if (account)
         await addIDO(
           {
-            address,
-            description,
+            title,
+            usdtAmount,
             image,
+            endTime,
+            idoAddress,
+            idoAmount,
           },
           account
         );
@@ -158,7 +172,7 @@ const Application = () => {
     <div className="App">
       <ModalAddIDO
         isShow={isShowMintNFT}
-        onSubmit={onPressMintNFT}
+        onSubmit={onPressAddIDO}
         onClose={hideIdo}
       />
       <span> </span>
@@ -217,10 +231,26 @@ const Application = () => {
                 <div
                   style={{
                     display: "flex",
-                    flexDirection: "row",
+                    flexDirection: "column",
                     justifyContent: "space-between",
                   }}
                 >
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                    }}
+                    className="text-primary"
+                  >
+                    {balanceUSDT} USDT
+                  </span>
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                    }}
+                    className="text-primary"
+                  >
+                    {balanceDOGE} DOGE
+                  </span>
                   <span
                     style={{
                       fontWeight: "bold",
@@ -274,14 +304,14 @@ const Application = () => {
               <div></div>
             </div>
           ) : (
-            marketNFTs.map((house: any, idx: number) => (
+            marketIDOs.map((item: any, idx: number) => (
               <div
                 key={idx}
                 style={{
                   marginTop: 30,
                 }}
               >
-                <NFTItem token={house} account={account} />
+                <NFTItem token={item} account={account} />
               </div>
             ))
           )}
@@ -316,7 +346,7 @@ const Application = () => {
               <div></div>
             </div>
           ) : (
-            ownerNFTs.map((house: any, idx: number) => (
+            ownerIDOs.map((item: any, idx: number) => (
               <div
                 key={idx}
                 style={{
@@ -326,7 +356,7 @@ const Application = () => {
                   width: 380,
                 }}
               >
-                <NFTItem account={account} token={house} />
+                <NFTItem account={account} token={item} />
                 <div
                   style={{
                     marginTop: 10,

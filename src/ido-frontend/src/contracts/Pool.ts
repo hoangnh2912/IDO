@@ -13,18 +13,35 @@ const contract = () => {
   );
 };
 
+const customContract = (address: string, abi: any) => {
+  const { web3 } = window as any;
+
+  return new web3.eth.Contract(abi, address);
+};
+
 const addIDO = async (payload: any, from: string) => {
   try {
-    const { address, image, description } = payload;
+    const { web3 } = window as any;
+    const { title, usdtAmount, image, endTime, idoAddress, idoAmount } =
+      payload;
+
+    const approveRes = await customContract(idoAddress, CONFIG.USDT.abi)
+      .methods.approve(
+        CONFIG.Pool.address,
+        web3.utils.toWei(idoAmount, "ether")
+      )
+      .send({ from });
+
+    await getTransactionReceiptMined(approveRes.transactionHash);
+
     const imageResponse = await pinFileToIPFS(image);
     const metadata = {
-      description,
       image: imageResponse.pinataUrl,
-      name: address,
+      name: title,
       attributes: [
         {
           trait_type: "Address",
-          value: address,
+          value: title,
         },
         {
           display_type: "date",
@@ -36,7 +53,14 @@ const addIDO = async (payload: any, from: string) => {
     const pinataResponse = await pinDataToIPFS(metadata);
     if (!pinataResponse) throw new Error("Metadata not pinned");
     const res = await contract()
-      .methods.addIDO(`${pinataResponse.pinataUrl}`)
+      .methods.addIDO(
+        CONFIG.USDT.address,
+        idoAddress,
+        web3.utils.toWei(usdtAmount, "ether"),
+        web3.utils.toWei(idoAmount, "ether"),
+        `${pinataResponse.pinataUrl}`,
+        parseInt(`${new Date(endTime).getTime() / 1000}`)
+      )
       .send({ from });
     await getTransactionReceiptMined(res.transactionHash);
   } catch (error) {

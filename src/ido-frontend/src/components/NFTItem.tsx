@@ -4,28 +4,18 @@ import { shortAddress } from "../utils/AddressHelper";
 
 export const NFTItem = (props: any) => {
   const { web3 } = window as any;
+  const { token, account, isShowButton = true } = props;
   const {
-    token,
-    showSell,
-    onPressCancel,
-    onPressCancelBid,
-    onPressBuy,
-    showBid,
-    showTransfer,
-    account,
-    isShowButton = true,
-    onPressAcceptBid,
-  } = props;
-  const { owner_of, token_address, token_id, metadata, price, bider } = token;
+    endTime,
+    idoCurrency,
+    metadata,
+    idoSupply,
+    owner,
+    tokenCurrency,
+    tokenSupply,
+  } = token;
 
-  const { description, image, name, attributes } = metadata
-    ? metadata
-    : {
-        description: "",
-        image: "",
-        name: "",
-        attributes: [],
-      };
+  const { name, image } = metadata;
 
   const styleText: CSSProperties = isShowButton
     ? {
@@ -67,7 +57,7 @@ export const NFTItem = (props: any) => {
         }}
       >
         <p />
-        <a
+        {/* <a
           onClick={() => {
             window.open(
               `https://rinkeby.etherscan.io/token/${token_address}?a=${token_id}`
@@ -79,18 +69,18 @@ export const NFTItem = (props: any) => {
             cursor: "pointer",
           }}
           children={`NFT ID: ${token_id}`}
-        />
-        {account != owner_of && (
+        /> */}
+        {account != owner && (
           <a
             onClick={() => {
-              window.open(`https://rinkeby.etherscan.io/address/${owner_of}`);
+              window.open(`https://rinkeby.etherscan.io/address/${owner}`);
             }}
             className="font-weight-bold text-primary"
             style={{
               fontSize: "0.8rem",
               cursor: "pointer",
             }}
-            children={`Owner: ${owner_of}`}
+            children={`Owner: ${owner}`}
           />
         )}
         <p />
@@ -111,151 +101,27 @@ export const NFTItem = (props: any) => {
             >
               {name}
             </div>
-            <div
+            <progress
               style={{
-                ...styleText,
-                fontWeight: "lighter",
+                width: 350,
               }}
-              children={`${description}`}
-            />
-            {price > 0 && (
-              <div
-                style={{
-                  ...styleText,
-                }}
-                className="font-weight-bold text-info"
-                children={`${`${parseFloat(
-                  web3.utils.fromWei(price, "ether")
-                ).toFixed(8)}`} WETH`}
-              />
-            )}
-            {bider.price != "0" && (
+              value="32"
+              max="100"
+            ></progress>
+            {idoSupply != "0" && (
               <>
-                <div
-                  style={{
-                    ...styleText,
-                  }}
-                  className="text-warning"
-                  children={`Bid last price`}
-                />
                 <div
                   style={{
                     ...styleText,
                   }}
                   className="font-weight-bold text-warning"
                   children={`${`${parseFloat(
-                    web3.utils.fromWei(bider.price, "ether")
-                  ).toFixed(8)}`} WETH`}
+                    web3.utils.fromWei(idoSupply, "ether")
+                  ).toFixed(8)}`} DOGE`}
                 />
               </>
             )}
           </div>
-          {isShowButton && (
-            <>
-              {account == owner_of && (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <button
-                    onClick={() => showTransfer(token)}
-                    className="btn btn-outline-primary"
-                    style={{
-                      marginRight: 10,
-                      marginBottom: 10,
-                    }}
-                  >
-                    Transfer
-                  </button>
-                  {price == 0 ? (
-                    <>
-                      {bider.price != "0" && (
-                        <button
-                          onClick={() => onPressAcceptBid(token_id)}
-                          className="btn btn-outline-warning"
-                          style={{
-                            marginRight: 10,
-                            marginBottom: 10,
-                          }}
-                        >
-                          Accept bid
-                        </button>
-                      )}
-                      <button
-                        onClick={() => showSell(token)}
-                        className="btn btn-outline-info"
-                        style={{
-                          marginRight: 10,
-                        }}
-                      >
-                        Sell
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      onClick={() => onPressCancel(token_id)}
-                      className="btn btn-outline-danger"
-                      style={{
-                        marginRight: 10,
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </div>
-              )}
-              {account != owner_of && (
-                <>
-                  {price == 0 ? (
-                    <div
-                      style={{
-                        flexDirection: "column",
-                        display: "flex",
-                      }}
-                    >
-                      <button
-                        onClick={() => showBid(token)}
-                        className="btn btn-outline-warning"
-                        style={{
-                          width: 100,
-                          marginRight: 10,
-                        }}
-                      >
-                        Bid
-                      </button>
-                      {bider.price != "0" && (
-                        <button
-                          onClick={() => onPressCancelBid(token_id)}
-                          className="btn btn-outline-danger"
-                          style={{
-                            width: 100,
-                            marginRight: 10,
-                            marginTop: 10,
-                          }}
-                        >
-                          Cancel bid
-                        </button>
-                      )}
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => onPressBuy(token_id)}
-                      className="btn btn-outline-info"
-                      style={{
-                        width: 100,
-                        marginRight: 10,
-                      }}
-                    >
-                      Buy
-                    </button>
-                  )}
-                </>
-              )}
-            </>
-          )}
         </div>
       </div>
     </>
