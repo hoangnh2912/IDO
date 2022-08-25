@@ -20,4 +20,16 @@ const getTransactionReceiptMined = (txHash: string, interval = 500) => {
   });
 };
 
-export { getTransactionReceiptMined };
+const fromWei = (amount: string, fixed: number = 8) => {
+  const { web3 } = window as any;
+  return parseFloat(
+    parseFloat(web3.utils.fromWei(amount, "ether")).toFixed(fixed)
+  );
+};
+const toWei = (amount: string) => {
+  if (!amount) return "0";
+  const { web3 } = window as any;
+  return web3.utils.toWei(amount, "ether");
+};
+
+export { getTransactionReceiptMined, fromWei, toWei };

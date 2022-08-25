@@ -11,6 +11,7 @@ module.exports = {
       let listIDO = [];
       for (let i = 1; i <= parseInt(totalIdo); i++) {
         const ido = await PoolContract.methods.getIDO(i).call();
+        const idoLeft = await PoolContract.methods.getLeftIDO(i).call();
         const owner_of = ido.owner.toLowerCase();
         if (type == LIST_IDO_TYPE.EXCLUDE && owner_of == address.toLowerCase())
           continue;
@@ -26,11 +27,13 @@ module.exports = {
           ).json();
         } catch (error) {}
         listIDO.push({
+          id: i,
           owner: ido[0],
           tokenCurrency: ido[1],
           idoCurrency: ido[2],
           tokenSupply: ido[3],
           idoSupply: ido[4],
+          idoLeft,
           metadata,
           endTime: ido[6],
         });

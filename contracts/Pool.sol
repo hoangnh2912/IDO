@@ -52,14 +52,14 @@ contract Pool is PoolModifier {
     {
         IERC20(_ido[_id].tokenCurrency).transferFrom(
             msg.sender,
-            address(this),
+            _ido[_id].owner,
             _amountToken
         );
         IERC20(_ido[_id].idoCurrency).transfer(
             msg.sender,
             _amountToken * _IdoToRateToken[_id]
         );
-        _IdoToLeftToken[_id] -= _amountToken;
+        _IdoToLeftToken[_id] -= _amountToken * _IdoToRateToken[_id];
     }
 
     function claimLeftIdo(uint256 _id) public onlyOwner(_ido[_id].owner) {
@@ -71,6 +71,14 @@ contract Pool is PoolModifier {
         );
         idoERC20.transfer(_ido[_id].owner, _IdoToLeftToken[_id]);
         _IdoToLeftToken[_id] = 0;
+    }
+
+    function calculateRateIdo(uint256 _id, uint256 _amountToken)
+        public
+        view
+        returns (uint256)
+    {
+        return _amountToken * _IdoToRateToken[_id];
     }
 
     function isIDOEnded(uint256 _id) public view returns (bool) {

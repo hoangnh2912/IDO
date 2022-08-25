@@ -3,16 +3,19 @@ import { useEffect, useState } from "react";
 import Web3 from "web3"; // Only when using npm/yarn
 import logo from "../../assets/images/logo512.png";
 import ModalAddIDO from "../../components/ModalAddIDO";
+import ModalBuyIDO from "../../components/ModalBuyIDO";
 import NFTItem from "../../components/NFTItem";
-import { LIST_NFT_TYPE, NETWOKR } from "../../constants/config";
-import { addIDO } from "../../contracts/Pool";
+import { CONFIG, LIST_NFT_TYPE, NETWOKR } from "../../constants/config";
+import { addIDO, buyIDO } from "../../contracts/Pool";
 import { getBalanceAPI, getListIDOAPI } from "../../services";
+import { fromWei } from "../../utils/TransactionHelper";
 import "./index.css";
 
 const Application = () => {
   const wdx = window as any;
 
-  const [isShowMintNFT, setIsShowNewIdo] = useState(false);
+  const [isShowAddIDO, setIsShowNewIdo] = useState(false);
+  const [isShowBuyIDO, setIsShowBuyIDO] = useState(null);
 
   const [balance, setBalance] = useState("");
   const [balanceUSDT, setBalanceUSDT] = useState("");
@@ -34,15 +37,9 @@ const Application = () => {
         });
         const { eth, usdt, doge } = balance.data;
 
-        setBalance(
-          `${parseFloat(wdx.web3.utils.fromWei(eth, "ether")).toFixed(5)}`
-        );
-        setBalanceUSDT(
-          `${parseFloat(wdx.web3.utils.fromWei(usdt, "ether")).toFixed(5)}`
-        );
-        setBalanceDOGE(
-          `${parseFloat(wdx.web3.utils.fromWei(doge, "ether")).toFixed(5)}`
-        );
+        setBalance(`${fromWei(eth)}`);
+        setBalanceUSDT(`${fromWei(usdt)}`);
+        setBalanceDOGE(`${fromWei(doge)}`);
       } catch (error) {}
     }
   };
@@ -77,8 +74,8 @@ const Application = () => {
   useEffect(() => {
     if (isConnect) {
       getBalance();
-      getOnwerNFTs();
-      getMarketNFTs();
+      getOnwerIDOs();
+      getMarketIDOs();
     }
   }, [isConnect, account, chainId]);
 
@@ -99,7 +96,7 @@ const Application = () => {
     }
   };
 
-  const getOnwerNFTs = async () => {
+  const getOnwerIDOs = async () => {
     if (account) {
       setLoadingOwner(true);
       setOwnerIDOs([]);
@@ -114,7 +111,7 @@ const Application = () => {
     }
   };
 
-  const getMarketNFTs = async () => {
+  const getMarketIDOs = async () => {
     if (account) {
       setLoadingMarket(true);
       setMarketIDOs([]);
@@ -137,7 +134,7 @@ const Application = () => {
     idoAmount,
     image,
   }: any) => {
-    hideIdo();
+    hideNewIdo();
     try {
       setLoading(true);
       if (account)
@@ -153,27 +150,61 @@ const Application = () => {
           account
         );
       await getBalance();
-      await getOnwerNFTs();
+      await getOnwerIDOs();
     } catch (error) {
     } finally {
       setLoading(false);
     }
   };
 
+  const onPressBuyIDO = async ({ id, tokenAmount }: any) => {
+    hideBuyIdo();
+    try {
+      setLoading(true);
+      if (account)
+        await buyIDO(
+          {
+            id,
+            usdtAmount: tokenAmount,
+          },
+          account
+        );
+      await getBalance();
+      await getMarketIDOs();
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const showBuyIdo = (token: any) => {
+    setIsShowBuyIDO(token);
+  };
+
+  const hideBuyIdo = () => {
+    setIsShowBuyIDO(null);
+  };
+
   const showNewIdo = () => {
     setIsShowNewIdo(true);
   };
 
-  const hideIdo = () => {
+  const hideNewIdo = () => {
     setIsShowNewIdo(false);
   };
 
   return (
     <div className="App">
+      <ModalBuyIDO
+        isShow={isShowBuyIDO}
+        account={account}
+        onSubmit={onPressBuyIDO}
+        onClose={hideBuyIdo}
+      />
       <ModalAddIDO
-        isShow={isShowMintNFT}
+        isShow={isShowAddIDO}
         onSubmit={onPressAddIDO}
-        onClose={hideIdo}
+        onClose={hideNewIdo}
       />
       <span> </span>
       <nav className="navbar navbar-dark fixed-top bg-light flex-md-nowrap p-0 shadow">
@@ -227,6 +258,24 @@ const Application = () => {
                     alert(`Copy address : ${account}`);
                   }}
                   children={`Address: ${account}`}
+                />
+                <span
+                  style={{
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(CONFIG.USDT.address);
+                  }}
+                  children={`USDT: ${CONFIG.USDT.address}`}
+                />
+                <span
+                  style={{
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(CONFIG.DOGE.address);
+                  }}
+                  children={`DOGE: ${CONFIG.DOGE.address}`}
                 />
                 <div
                   style={{
@@ -311,7 +360,11 @@ const Application = () => {
                   marginTop: 30,
                 }}
               >
-                <NFTItem token={item} account={account} />
+                <NFTItem
+                  token={item}
+                  showBuyIdo={showBuyIdo}
+                  account={account}
+                />
               </div>
             ))
           )}

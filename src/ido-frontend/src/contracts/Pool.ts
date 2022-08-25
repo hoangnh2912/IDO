@@ -2,7 +2,7 @@ import Web3 from "web3";
 import { AbiItem } from "web3-utils/types";
 import CONFIG from "../constants/config.json";
 import { pinDataToIPFS, pinFileToIPFS } from "../utils/MintFunc";
-import { getTransactionReceiptMined } from "../utils/TransactionHelper";
+import { getTransactionReceiptMined, toWei } from "../utils/TransactionHelper";
 
 const contract = () => {
   const { web3 } = window as any;
@@ -70,13 +70,25 @@ const addIDO = async (payload: any, from: string) => {
 
 const buyIDO = async (payload: any, from: string) => {
   try {
-    const { address, token_id } = payload;
-    const res = await contract()
-      .methods.transferFrom(from, address, token_id)
+    const { id, usdtAmount } = payload;
+
+    const approveRes = await customContract(
+      CONFIG.USDT.address,
+      CONFIG.USDT.abi
+    )
+      .methods.approve(CONFIG.Pool.address, toWei(usdtAmount))
       .send({ from });
+
+    await getTransactionReceiptMined(approveRes.transactionHash);
+
+    const res = await contract()
+      .methods.buyIDO(id, toWei(usdtAmount))
+      .send({ from });
+    console.log(res);
+
     await getTransactionReceiptMined(res.transactionHash);
   } catch (error: any) {
-    console.log("transfer ", error.message);
+    // console.log(error.message, error.stack);
   }
 };
 
@@ -101,4 +113,20 @@ const isIDOEnded = async (payload: any) => {
   return _ended;
 };
 
-export { addIDO, claimLeftIdo, buyIDO, getIDO, getTotalIDO, isIDOEnded };
+const calculateRateIdo = async (payload: any) => {
+  const { id, usdtAmount } = payload;
+  const _idoAmount = await contract()
+    .methods.calculateRateIdo(id, usdtAmount)
+    .call();
+  return _idoAmount;
+};
+
+export {
+  addIDO,
+  claimLeftIdo,
+  buyIDO,
+  getIDO,
+  getTotalIDO,
+  isIDOEnded,
+  calculateRateIdo,
+};

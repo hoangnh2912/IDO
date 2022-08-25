@@ -16,6 +16,8 @@
     "truffle": "^5.5.14"
   },
   "scripts": {
+    "start-fe": "cd src/ido-frontend && yarn start",
+    "start-be": "cd src/ido-backend && yarn start",
     "compile": "truffle compile",
     "deploy": "yarn compile && hardhat run --network rinkeby ./scripts/deploy.js",
     "deploy-ganache": "yarn compile && hardhat run --network ganache ./scripts/deploy.js",

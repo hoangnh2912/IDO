@@ -1,10 +1,12 @@
-import React, { CSSProperties } from "react";
+import { CSSProperties } from "react";
+import Button from "react-bootstrap/Button";
+import ProgressBar from "react-bootstrap/ProgressBar";
 import { BASE_URL } from "../constants/config";
-import { shortAddress } from "../utils/AddressHelper";
+import { fromWei } from "../utils/TransactionHelper";
 
 export const NFTItem = (props: any) => {
   const { web3 } = window as any;
-  const { token, account, isShowButton = true } = props;
+  const { token, account, isShowButton = true, showBuyIdo } = props;
   const {
     endTime,
     idoCurrency,
@@ -13,6 +15,7 @@ export const NFTItem = (props: any) => {
     owner,
     tokenCurrency,
     tokenSupply,
+    idoLeft,
   } = token;
 
   const { name, image } = metadata;
@@ -57,19 +60,6 @@ export const NFTItem = (props: any) => {
         }}
       >
         <p />
-        {/* <a
-          onClick={() => {
-            window.open(
-              `https://rinkeby.etherscan.io/token/${token_address}?a=${token_id}`
-            );
-          }}
-          className="font-weight-bold text-primary"
-          style={{
-            fontSize: "0.8rem",
-            cursor: "pointer",
-          }}
-          children={`NFT ID: ${token_id}`}
-        /> */}
         {account != owner && (
           <a
             onClick={() => {
@@ -101,26 +91,54 @@ export const NFTItem = (props: any) => {
             >
               {name}
             </div>
-            <progress
+            <ProgressBar
               style={{
                 width: 350,
               }}
-              value="32"
-              max="100"
-            ></progress>
-            {idoSupply != "0" && (
-              <>
-                <div
-                  style={{
-                    ...styleText,
+              now={(idoLeft / idoSupply) * 100}
+              animated
+              variant="warning"
+              label={`${fromWei(idoLeft)}/${fromWei(idoSupply)}`}
+            />
+            <>
+              <div
+                style={{
+                  ...styleText,
+                }}
+                className="font-weight-bold text-warning"
+                children={`Total IDO: ${fromWei(idoSupply)} DOGE`}
+              />
+              <div
+                style={{
+                  ...styleText,
+                }}
+                className="font-weight-bold text-info"
+                children={`Call USDT: ${fromWei(tokenSupply)} USDT`}
+              />
+              <div
+                style={{
+                  ...styleText,
+                }}
+                className="font-weight-bold text"
+                children={`End date: ${new Date(
+                  parseInt(endTime) * 1000
+                ).toLocaleDateString()}`}
+              />
+
+              {account.toLowerCase() != owner.toLowerCase() && isShowButton && (
+                <Button
+                  onClick={() => {
+                    showBuyIdo(token);
                   }}
-                  className="font-weight-bold text-warning"
-                  children={`${`${parseFloat(
-                    web3.utils.fromWei(idoSupply, "ether")
-                  ).toFixed(8)}`} DOGE`}
-                />
-              </>
-            )}
+                  style={{
+                    color: "white",
+                  }}
+                  variant="warning"
+                >
+                  Buy
+                </Button>
+              )}
+            </>
           </div>
         </div>
       </div>
