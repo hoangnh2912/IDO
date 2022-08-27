@@ -7,10 +7,12 @@ async function main() {
   const Pool = await ethers.getContractFactory("Pool");
   const USDT = await ethers.getContractFactory("USDT");
   const DOGE = await ethers.getContractFactory("DOGE");
+  const CreateERC20 = await ethers.getContractFactory("CreateERC20");
 
   const pool = await Pool.deploy();
   const usdt = await USDT.deploy();
   const doge = await DOGE.deploy();
+  const createERC20 = await CreateERC20.deploy();
 
   const config = {
     Pool: {
@@ -29,6 +31,12 @@ async function main() {
       address: doge.address,
       abi: require("../build/contracts/DOGE.json").abi,
       contractName: require("../build/contracts/DOGE.json").contractName,
+      input: [],
+    },
+    CreateERC20: {
+      address: createERC20.address,
+      abi: require("../build/contracts/CreateERC20.json").abi,
+      contractName: require("../build/contracts/CreateERC20.json").contractName,
       input: [],
     },
   };

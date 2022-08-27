@@ -1,6 +1,6 @@
 const { LIST_IDO_TYPE, CONFIG } = require("../utils/constant");
 const { onError, onSuccess, onSuccessArray } = require("../utils/utils");
-const { PoolContract } = require("../utils/web3");
+const { PoolContract, CustomERC20Contract } = require("../utils/web3");
 const fetch = require("node-fetch");
 
 module.exports = {
@@ -26,6 +26,10 @@ module.exports = {
             )
           ).json();
         } catch (error) {}
+        const symbol = await CustomERC20Contract(ido[2])
+          .methods.symbol()
+          .call();
+
         listIDO.push({
           id: i,
           owner: ido[0],
@@ -36,6 +40,7 @@ module.exports = {
           idoLeft,
           metadata,
           endTime: ido[6],
+          symbol,
         });
       }
       res.json(onSuccessArray(listIDO));

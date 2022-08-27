@@ -4,8 +4,10 @@ import Web3 from "web3"; // Only when using npm/yarn
 import logo from "../../assets/images/logo512.png";
 import ModalAddIDO from "../../components/ModalAddIDO";
 import ModalBuyIDO from "../../components/ModalBuyIDO";
+import ModalCreateERC20 from "../../components/ModalCreateERC20";
 import NFTItem from "../../components/NFTItem";
 import { CONFIG, LIST_NFT_TYPE, NETWOKR } from "../../constants/config";
+import { createERC20 } from "../../contracts/CreateERC20";
 import { addIDO, buyIDO } from "../../contracts/Pool";
 import { getBalanceAPI, getListIDOAPI } from "../../services";
 import { fromWei } from "../../utils/TransactionHelper";
@@ -16,10 +18,11 @@ const Application = () => {
 
   const [isShowAddIDO, setIsShowNewIdo] = useState(false);
   const [isShowBuyIDO, setIsShowBuyIDO] = useState(null);
+  const [isShowCreateERC20, setIsShowCreateERC20] = useState(false);
+  const [addressErc20, setAddressErc20] = useState("");
 
   const [balance, setBalance] = useState("");
   const [balanceUSDT, setBalanceUSDT] = useState("");
-  const [balanceDOGE, setBalanceDOGE] = useState("");
   const [ownerIDOs, setOwnerIDOs] = useState<any>([]);
   const [marketIDOs, setMarketIDOs] = useState<any>([]);
   const [isLoading, setLoading] = useState(false);
@@ -39,7 +42,6 @@ const Application = () => {
 
         setBalance(`${fromWei(eth)}`);
         setBalanceUSDT(`${fromWei(usdt)}`);
-        setBalanceDOGE(`${fromWei(doge)}`);
       } catch (error) {}
     }
   };
@@ -176,7 +178,19 @@ const Application = () => {
       setLoading(false);
     }
   };
-
+  const onPressCreateERC20 = async (payload: any) => {
+    try {
+      setLoading(true);
+      if (account) {
+        const { erc20Address } = await createERC20(payload, account);
+        setAddressErc20(erc20Address);
+      }
+      await getBalance();
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
   const showBuyIdo = (token: any) => {
     setIsShowBuyIDO(token);
   };
@@ -193,8 +207,24 @@ const Application = () => {
     setIsShowNewIdo(false);
   };
 
+  const showCreateERC20 = () => {
+    setIsShowCreateERC20(true);
+  };
+
+  const hideCreateERC20 = () => {
+    setAddressErc20("");
+
+    setIsShowCreateERC20(false);
+  };
+
   return (
     <div className="App">
+      <ModalCreateERC20
+        addressErc20={addressErc20}
+        isShow={isShowCreateERC20}
+        onSubmit={onPressCreateERC20}
+        onClose={hideCreateERC20}
+      />
       <ModalBuyIDO
         isShow={isShowBuyIDO}
         account={account}
@@ -228,9 +258,20 @@ const Application = () => {
               style={{
                 flexDirection: "row",
                 display: "flex",
-                // alignItems: "center",
               }}
             >
+              <button
+                style={{
+                  marginRight: "15px",
+                  marginTop: "5px",
+                  marginBottom: "5px",
+                  color: "white",
+                }}
+                onClick={showCreateERC20}
+                className="btn btn-warning"
+              >
+                Create ERC20
+              </button>
               <button
                 style={{
                   marginRight: "15px",
@@ -257,7 +298,7 @@ const Application = () => {
                     navigator.clipboard.writeText(account);
                     alert(`Copy address : ${account}`);
                   }}
-                  children={`Address: ${account}`}
+                  children={`Your address: ${account}`}
                 />
                 <span
                   style={{
@@ -267,15 +308,6 @@ const Application = () => {
                     navigator.clipboard.writeText(CONFIG.USDT.address);
                   }}
                   children={`USDT: ${CONFIG.USDT.address}`}
-                />
-                <span
-                  style={{
-                    cursor: "pointer",
-                  }}
-                  onClick={() => {
-                    navigator.clipboard.writeText(CONFIG.DOGE.address);
-                  }}
-                  children={`DOGE: ${CONFIG.DOGE.address}`}
                 />
                 <div
                   style={{
@@ -291,14 +323,6 @@ const Application = () => {
                     className="text-primary"
                   >
                     {balanceUSDT} USDT
-                  </span>
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                    }}
-                    className="text-primary"
-                  >
-                    {balanceDOGE} DOGE
                   </span>
                   <span
                     style={{

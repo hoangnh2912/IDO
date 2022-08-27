@@ -16,6 +16,7 @@ export const NFTItem = (props: any) => {
     tokenCurrency,
     tokenSupply,
     idoLeft,
+    symbol,
   } = token;
 
   const { name, image } = metadata;
@@ -65,7 +66,7 @@ export const NFTItem = (props: any) => {
             onClick={() => {
               window.open(`https://rinkeby.etherscan.io/address/${owner}`);
             }}
-            className="font-weight-bold text-primary"
+            className="font-bold text-primary"
             style={{
               fontSize: "0.8rem",
               cursor: "pointer",
@@ -106,7 +107,7 @@ export const NFTItem = (props: any) => {
                   ...styleText,
                 }}
                 className="font-weight-bold text-warning"
-                children={`Total IDO: ${fromWei(idoSupply)} DOGE`}
+                children={`Total IDO: ${fromWei(idoSupply)} ${symbol}`}
               />
               <div
                 style={{

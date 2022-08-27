@@ -3,6 +3,9 @@ const { RPC_URL, CONFIG } = require("./constant");
 
 const web3 = new Web3(RPC_URL);
 
+const CustomERC20Contract = (address) =>
+  new web3.eth.Contract(CONFIG.USDT.abi, address);
+
 const USDTContract = new web3.eth.Contract(
   CONFIG.USDT.abi,
   CONFIG.USDT.address
@@ -23,4 +26,5 @@ module.exports = {
   USDTContract,
   PoolContract,
   DOGEContract,
+  CustomERC20Contract,
 };

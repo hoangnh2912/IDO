@@ -43,9 +43,17 @@ export const ModalBuyIDO = (props: any) => {
                 Amount USDT
               </InputGroup.Text>
               <Form.Control
+                value={tokenAmount}
                 onChange={(e: any) => {
-                  getIdoAmount(`${e.target.value}`);
-                  setTokenAmount(`${e.target.value}`);
+                  if (
+                    parseFloat(e.target.value) > fromWei(isShow.tokenSupply)
+                  ) {
+                    getIdoAmount(`${fromWei(isShow.tokenSupply)}`);
+                    setTokenAmount(`${fromWei(isShow.tokenSupply)}`);
+                  } else {
+                    getIdoAmount(`${e.target.value}`);
+                    setTokenAmount(`${e.target.value}`);
+                  }
                 }}
                 type="number"
                 aria-label="Amount USDT"
@@ -54,7 +62,7 @@ export const ModalBuyIDO = (props: any) => {
             </InputGroup>
             <div
               className="font-weight-bold text"
-              children={`You got : ${fromWei(idoAmount)} DOGE`}
+              children={`You got : ${fromWei(idoAmount)} ${isShow.symbol}`}
             />
           </>
         )}

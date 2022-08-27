@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { resizeImageFn } from "../utils/MintFunc";
+import InputGroup from "react-bootstrap/InputGroup";
+import Form from "react-bootstrap/Form";
 
 export const ModalAddIDO = (props: any) => {
   const [title, setTitle] = useState("");
@@ -33,81 +35,100 @@ export const ModalAddIDO = (props: any) => {
         <Modal.Title>New IDO</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <h3>Title : </h3>
-        <input
-          type="text"
+        <InputGroup className="mb-3">
+          <InputGroup.Text id="inputGroup-sizing-default">
+            Title
+          </InputGroup.Text>
+          <Form.Control
+            onChange={(event: any) => {
+              setTitle(event.target.value);
+            }}
+            aria-describedby="inputGroup-sizing-default"
+          />
+        </InputGroup>
+        <Form.Group controlId="formFile" className="mb-3">
+          <Form.Label>Image</Form.Label>
+          <Form.Control
+            accept="image/*"
+            onChange={(event: any) => {
+              try {
+                if (
+                  event &&
+                  event.target &&
+                  event.target.files &&
+                  event.target.files.length > 0
+                ) {
+                  const file = event.target.files[0];
+                  setImageFile(file);
+                  const reader = new FileReader();
+                  reader.readAsDataURL(file);
+                  reader.onloadend = function () {
+                    if (reader && reader.result) {
+                      setImage(reader.result as string);
+                    }
+                  }.bind(this);
+                }
+              } catch (error) {}
+            }}
+            type="file"
+          />
+        </Form.Group>
+        <div
           style={{
             width: "100%",
+            justifyContent: "center",
+            display: "flex",
           }}
-          onChange={(event) => setTitle(event.target.value)}
-        />
-        <p></p>
-        <h3>Image: </h3>
-        <input
-          type="file"
-          style={{
-            width: "100%",
-          }}
-          accept="image/*"
-          onChange={(event) => {
-            try {
-              if (
-                event &&
-                event.target &&
-                event.target.files &&
-                event.target.files.length > 0
-              ) {
-                const file = event.target.files[0];
-                setImageFile(file);
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onloadend = function () {
-                  if (reader && reader.result) {
-                    setImage(reader.result as string);
-                  }
-                }.bind(this);
-              }
-            } catch (error) {}
-          }}
-        />
-        <img width={350} src={image} />
-        <p></p>
-        <h3>Token IDO address: </h3>
-        <input
-          type="text"
-          style={{
-            width: "100%",
-          }}
-          onChange={(event) => setIdoAddress(event.target.value)}
-        />
-        <p></p>
-        <h3>Token IDO amount: </h3>
-        <input
-          type="text"
-          style={{
-            width: "100%",
-          }}
-          onChange={(event) => setIdoAmount(event.target.value)}
-        />
-        <p></p>
-        <h3>USDT amount: </h3>
-        <input
-          type="text"
-          style={{
-            width: "100%",
-          }}
-          onChange={(event) => setUsdtAmount(event.target.value)}
-        />
-        <p></p>
-        <h3>End time: </h3>
-        <input
-          type="datetime-local"
-          style={{
-            width: "100%",
-          }}
-          onChange={(event) => setEndTime(event.target.value)}
-        />
-        <p></p>
+        >
+          <img
+            style={{
+              maxWidth: 350,
+              maxHeight: 350,
+              borderRadius: 10,
+            }}
+            src={image}
+          />
+        </div>
+        <p />
+        <InputGroup className="mb-3">
+          <InputGroup.Text id="inputGroup-sizing-default">
+            Token IDO address
+          </InputGroup.Text>
+          <Form.Control
+            onChange={(event: any) => setIdoAddress(event.target.value)}
+            aria-describedby="inputGroup-sizing-default"
+          />
+        </InputGroup>
+        <InputGroup className="mb-3">
+          <InputGroup.Text id="inputGroup-sizing-default">
+            IDO amount
+          </InputGroup.Text>
+          <Form.Control
+            type="number"
+            onChange={(event: any) => setIdoAmount(event.target.value)}
+            aria-describedby="inputGroup-sizing-default"
+          />
+        </InputGroup>
+        <InputGroup className="mb-3">
+          <InputGroup.Text id="inputGroup-sizing-default">
+            USDT amount
+          </InputGroup.Text>
+          <Form.Control
+            type="number"
+            onChange={(event: any) => setUsdtAmount(event.target.value)}
+            aria-describedby="inputGroup-sizing-default"
+          />
+        </InputGroup>
+        <InputGroup className="mb-3">
+          <InputGroup.Text id="inputGroup-sizing-default">
+            End time
+          </InputGroup.Text>
+          <Form.Control
+            type="datetime-local"
+            onChange={(event: any) => setEndTime(event.target.value)}
+            aria-describedby="inputGroup-sizing-default"
+          />
+        </InputGroup>
       </Modal.Body>
       <Modal.Footer>
         <Button
@@ -124,7 +145,7 @@ export const ModalAddIDO = (props: any) => {
           }}
           variant="primary"
         >
-          Mint
+          New IDO
         </Button>
       </Modal.Footer>
     </Modal>
